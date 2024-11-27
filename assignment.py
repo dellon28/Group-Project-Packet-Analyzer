@@ -80,7 +80,7 @@ def suspPort(pkt):
     if getSrcPort(pkt)>500 or getDstPort(pkt) >500:
         return True
     return False
-    # Write your code here
+   
 
 def suspProto(pkt):
     NormList=["HTTP","SMTP","UDP","TCP","DHCP"]
@@ -88,7 +88,7 @@ def suspProto(pkt):
         return True
     else: 
         return False
-    # Write your code here
+   
 
 def ipBlacklist(pkt):
     BlackList=["213.217.236.184","444.222.232.94","149.88.83.47","223.70.250.146","169.51.6.136","229.223.169.245"]
@@ -96,10 +96,9 @@ def ipBlacklist(pkt):
         return True
     else: 
         return False
-# Please Paste all Fuctions from Part 1,2 & 3
-# Complete the functions below.
-#
 
+
+#--------------------------------------------------------------part 4---------------------------------------------------------------------------------------
 def calScore(pkt):
     score=0 
     if ipBlacklist(pkt):
@@ -111,19 +110,19 @@ def calScore(pkt):
     if pkt in flowAverage(pkt_list):
         score+=3.56 
     return score
-  # Write your code here
+ 
         
 def makeScore(pkt_list):
     scorelist=[]
     for pkt in pkt_list:
         scorelist+= [(pkt,calScore(pkt))]
     return ['score',[scorelist]]
-  # Write your code here
+ 
 
 def addPacket(ScoreList, pkt):
     score=calScore(pkt)
     return ScoreList[1][0].append((pkt,score))
-  # Write your code here
+  
 
 def getSuspPkts(ScoreList):
     newlist=[pkt for pkt,score in ScoreList[1][0] if score >5.00]
@@ -133,7 +132,7 @@ def getSuspPkts(ScoreList):
 def getRegulPkts(ScoreList):#Takes a Score as an input and returns a list of all regular packets.
     newlist=[pkt for pkt,score in ScoreList[1][0] if score<=5.00]
     return newlist
-  # Write your code here
+ 
             
 def isScore(ScoreList):#Checks to see if a given list, is a valid Score.
     return ScoreList[0]=='score'
@@ -143,7 +142,59 @@ def isEmptyScore(ScoreList):
         return ScoreList[1]==[]
     else:
         raise TypeError ("not a score list")
-  # Write your code here
+
+
+#-----------------------------------------------------part 5------------------------------------------------------------------------------------------------------
+def makePacketQueue():
+    return ('PQ',[])
+
+
+def contentsQ(q):
+    return q[1]
+  
+
+def frontPacketQ(q):
+    if isEmptPacketQ(q):
+        return contentsQ(q)[0]
+    raise TypeError ("not a queue")
+  
+
+def addToPacketQ(pkt,q):
+    if isPacketQ(q):
+        pos=get_pos(pkt,contentsQ(q))
+        contentsQ(q).insert(pos,pkt)
+    else:
+        raise TypeError("This is not a queue")
+ 
+
+def get_pos(pkt,lst):
+    if (lst == []):
+        return 0
+    elif getSqn(pkt) < getSqn(lst[0]):
+        return 0 + get_pos(pkt,[])
+    else:
+        return 1 + get_pos(pkt,lst[1:])
+            
+def removeFromPacketQ(q):
+    if not isEmptPacketQ(q):
+        contentsQ(q).pop(0)
+    else:
+        raise IndexError ("queue is empty")
+ 
+
+def isPacketQ(q):
+    return q[0]=="PQ" and type(q)==type(()) and len(q)==2
+       
+        
+
+
+def isEmptPacketQ(q):
+    if isPacketQ(q):
+        return contentsQ(q)==[]
+    else:
+        raise TypeError("arg must be a queue")
+   
+        
 
 
 if __name__ == '__main__':
@@ -169,17 +220,27 @@ if __name__ == '__main__':
     
     pkt_list = [pkt,pk1,pk2,pk3,pk4]
     
+    q = makePacketQueue()
+    
     ProtocolList = ["HTTP","SMTP","UDP","TCP","DHCP"]
     IpBlackList = ["213.217.236.184","444.221.232.94","149.88.83.47","223.70.250.146","169.51.6.136","229.223.169.245"]
     
     ScoreList = makeScore(pkt_list)
-    addPacket(ScoreList, pk5)
     
-    fptr.write('Packet Score (pkt) => ' + str(calScore(pkt)) + '\n')
-    fptr.write('Packet Score (pk1) => ' + str(calScore(pk1)) + '\n')
-    fptr.write('Suspicious Packets => ' + str(getSuspPkts(ScoreList)) + '\n')
-    fptr.write('Regular Packets => ' + str(getRegulPkts(ScoreList)) + '\n')
-    fptr.write('Is Score Object => ' + str(isScore(ScoreList)) + '\n')
-    fptr.write('Is Empty Score => ' + str(isEmptyScore(ScoreList)) + '\n')
+    addToPacketQ(pkt,q)
+    addToPacketQ(pk1,q)
+    addToPacketQ(pk2,q)
+    addToPacketQ(pk3,q)
+    addToPacketQ(pk4,q)
+    addToPacketQ(pk5,q)
+    removeFromPacketQ(q)
+
+    fptr.write('Queue Contents => ' + str(contentsQ(q)) + '\n')
+    fptr.write('Is Queue Object => ' + str(isPacketQ(q)) + '\n')
+    fptr.write('Is Queue Object (2) => ' + str(isPacketQ(("PQ",[],1))) + '\n')
+    fptr.write('Is Empty Queue => ' + str(isEmptPacketQ(q)) + '\n')
+    fptr.write('Is Empty Queue (2) => ' + str(isPacketQ(("PQ",[]))) + '\n')
+    
+    
 
     fptr.close()
