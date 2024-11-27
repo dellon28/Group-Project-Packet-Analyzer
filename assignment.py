@@ -194,7 +194,38 @@ def isEmptPacketQ(q):
     else:
         raise TypeError("arg must be a queue")
    
-        
+#-------------------------------------------------------------------part 6-----------------------------------------------------------------------------
+def makePacketStack():
+    return ("PS",[])
+
+def contentsStack(stk):
+    return stk[1]
+
+def topProjectStack(stk):
+    if not isEmptyPKStack(stk) and isPKstack(stk):
+        return contentsStack(stk)[-1]
+    else:
+        raise TypeError ("Must be a stack and must not be empty")
+
+
+def pushProjectStack(pkt,stk):
+    if isPKstack(stk):
+        contentsStack(stk).append(pkt)
+    else:
+        raise TypeError ("Must be a stack")
+
+
+def popPickupStack(stk):
+    contentsStack(stk).pop()
+
+def isPKstack(stk):
+    return type(stk)==type(()) and stk[0]=="PS" and type(contentsStack(stk))==type([])
+
+def isEmptyPKStack(stk):
+    if isPKstack(stk):
+        return contentsStack(stk)==[]
+    else:
+        raise TypeError ("Must be a stack")
 
 
 if __name__ == '__main__':
