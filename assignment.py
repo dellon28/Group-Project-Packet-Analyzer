@@ -6,10 +6,14 @@ import random
 import re
 import sys
 
+#
+# Please Paste all Fuctions from Part 1,2,3,4,5,6 & 7
+# Complete the function below.
+#
 
 def makePacket(srcIP, dstIP, length, prt, sp, dp, sqn, pld):
     return ("PK",srcIP,dstIP,[length,prt,[sp,dp],sqn,pld])
-    
+              
     
 def getPacketSrc(pkt):
     return pkt[1]
@@ -61,15 +65,15 @@ def getPayloadSize(pkt):
 
 #------------------------Part 3----------------------------------------
 
-def flowAverage(pkt_list):#This metric will accept a list of packets and gets the average payload size
-#of all the packets. It will return a list of packets that are above the average of the list.
+def flowAverage(packet_List):#This metric will accept a list of packets and gets the average payload size
+#of all the packets. It will return a list of packets that are above the average of the list
     lstPack=[]
     size=0
-    for pkt in pkt_list:
+    for pkt in packet_List:
         size+=getPayloadSize(pkt)
-    average=size/len(pkt_list)
+    average=size/len(packet_List)
     
-    for pkt in pkt_list:
+    for pkt in packet_List:
         if getPayloadSize(pkt)>average:
             lstPack.append(pkt)
     return lstPack
@@ -99,7 +103,7 @@ def ipBlacklist(pkt):
         return False
 
 
-#--------------------------------------------------------------part 4---------------------------------------------------
+#--------------------------------------------------------------part 4---------------------------------------------------------------------------------------
 def calScore(pkt):
     score=0 
     if ipBlacklist(pkt):
@@ -108,7 +112,7 @@ def calScore(pkt):
         score+=2.74
     if suspPort(pkt):
         score+=1.45
-    if pkt in flowAverage(pkt_list):
+    if pkt in flowAverage(lst):
         score+=3.56 
     return score
  
@@ -118,24 +122,23 @@ def makeScore(pkt_list):
     for pkt in pkt_list:
         scorelist+= [(pkt,calScore(pkt))]
     return ['score',[scorelist]]
-
+ 
 def Slist_contents(ScoreList):
     print (ScoreList)
     return ScoreList[1][0]
- 
 
 def addPacket(ScoreList, pkt):
     score=calScore(pkt)
-    return Slist_contents(ScoreList).append((pkt,score))
+    return SSlist_contents.append((pkt,score))
   
 
 def getSuspPkts(ScoreList):
-    newlist=[pkt for pkt,score in Slist_contents(ScoreList) if score >5.00]
+    newlist=[pkt for pkt,score in Slist_contents if score >5.00]
     return newlist
 
 
 def getRegulPkts(ScoreList):#Takes a Score as an input and returns a list of all regular packets.
-    newlist=[pkt for pkt,score in Slist_contents(ScoreList) if score<=5.00]
+    newlist=[pkt for pkt,score in Slist_contents if score<=5.00]
     return newlist
  
             
@@ -149,7 +152,7 @@ def isEmptyScore(ScoreList):
         raise TypeError ("not a score list")
 
 
-#-----------------------------------------------------part 5------------------------------------------------------------
+#-----------------------------------------------------part 5------------------------------------------------------------------------------------------------------
 def makePacketQueue():
     return ('PQ',[])
 
@@ -198,8 +201,9 @@ def isEmptPacketQ(q):
         return contentsQ(q)==[]
     else:
         raise TypeError("arg must be a queue")
-   
-#------------------------------------------------------------------part 6----------------------------------------------
+    
+#--------------------------------Part 6------------------------------------------------------------------------------------------------------
+
 def makePacketStack():
     return ("PS",[])
 
@@ -240,8 +244,28 @@ def sortPackets(scoreList,stack,queue):
         addToPacketQ(k,queue)
     for d in discard:
         pushProjectStack(d,stack)
-    
- 
+        
+
+
+
+#-------------------------Part 8------------------------------------------------------------------
+def analysePackets(packet_List):
+        pQueue = makePacketQueue()
+        pStack = makePacketStack()
+
+        scoreList = makeScore(lst)
+        print("Score List (scoreList):", scoreList)  
+
+        # Sort packets into queue and stack
+        sortPackets(scoreList, pStack, pQueue)
+
+        # Sort the queue by sequence number in descending order
+        pQueue[1].sort(key=lambda pkt: getSqn(pkt), reverse=False)
+
+        return pQueue
+
+
+
 
 if __name__ == '__main__':
     fptr = open(os.environ['OUTPUT_PATH'], 'w')
@@ -256,27 +280,25 @@ if __name__ == '__main__':
     dp = int(first_multiple_input[5])
     sqn = int(first_multiple_input[6])
     pld = int(first_multiple_input[7])
-
-    pkt = makePacket(srcIP, dstIP, length, prt, sp, dp, sqn, pld)
-    pk1 = makePacket("111.202.230.44","62.82.29.190",31,"HTTP",80,20,1562431,38)
-    pk2 = makePacket("222.57.155.164","50.168.160.19",22,"UDP",90,5431,1662431,82)
-    pk3 = makePacket("333.230.18.207","213.217.236.184",56,"IRC",501,5643,1762431,318)
-    pk4 = makePacket("444.221.232.94","50.168.160.19",1003,"TCP",4657,4875,1962431,428)
-    pk5 = makePacket("555.221.232.94","50.168.160.19",236,"TCP",7753,5724,2062431,48)
     
-    pkt_list = [pkt,pk1,pk2,pk3,pk4,pk5]
-    
-    ProtocolList = ["HTTP","SMTP","UDP","TCP","DHCP"]
+    ProtocolList = ["HTTPS","SMTP","UDP","TCP","DHCP","IRC"]
     IpBlackList = ["213.217.236.184","444.221.232.94","149.88.83.47","223.70.250.146","169.51.6.136","229.223.169.245"]
     
-    scoreList = makeScore(pkt_list)
-    stk =  makePacketStack()
-    q = makePacketQueue()
+    packet_List = [(srcIP, dstIP, length, prt, sp, dp, sqn, pld),\
+              ("111.202.230.44","62.82.29.190",31,"HTTP",80,20,1562436,38),\
+              ("222.57.155.164","50.168.160.19",22,"UDP",90,5431,1662435,82),\
+              ("333.230.18.207","213.217.236.184",56,"IRC",501,5643,1762434,318),\
+              ("444.221.232.94","50.168.160.19",1003,"TCP",4657,4875,1962433,428),\
+              ("555.221.232.94","50.168.160.19",236,"TCP",7753,5724,2062432,48)]
     
-    sortPackets(scoreList,stk,q)
+    lst = [makePacket(*pkts) for pkts in packet_List]
     
-    fptr.write('Stack Contents => ' + str(contentsStack(stk)) + '\n')
-    fptr.write('\n')
+    analysePackets(packet_List)
+    
+    
+    fptr.write('Forward Packets => ' + str(analysePackets(packet_List)) + '\n')
+    
+    fptr.close()
     fptr.write('Queue Contens => ' + str(contentsQ(q)) + '\n')
     
     fptr.close()
