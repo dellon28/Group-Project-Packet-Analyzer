@@ -67,6 +67,7 @@ def getPayloadSize(pkt):
 
 def flowAverage(packet_List):#This metric will accept a list of packets and gets the average payload size
 #of all the packets. It will return a list of packets that are above the average of the list
+    
     lstPack=[]
     size=0
     for pkt in packet_List:
@@ -96,7 +97,7 @@ def suspProto(pkt):
    
 
 def ipBlacklist(pkt):
-    BlackList=["213.217.236.184","444.222.232.94","149.88.83.47","223.70.250.146","169.51.6.136","229.223.169.245"]
+    BlackList=["213.217.236.184","149.88.83.47","223.70.250.146","169.51.6.136","229.223.169.245"]
     if getPacketSrc(pkt) in BlackList:
         return True
     else: 
@@ -115,6 +116,7 @@ def calScore(pkt):
     if pkt in flowAverage(lst):
         score+=3.56 
     return score
+    print("calcscore output:",score)
  
         
 def makeScore(pkt_list):
@@ -129,16 +131,16 @@ def Slist_contents(ScoreList):
 
 def addPacket(ScoreList, pkt):
     score=calScore(pkt)
-    return SSlist_contents.append((pkt,score))
+    return Slist_contents(ScoreList).append((pkt,score))
   
 
 def getSuspPkts(ScoreList):
-    newlist=[pkt for pkt,score in Slist_contents if score >5.00]
+    newlist=[pkt for pkt,score in Slist_contents(ScoreList)] if score >5.00]
     return newlist
 
 
 def getRegulPkts(ScoreList):#Takes a Score as an input and returns a list of all regular packets.
-    newlist=[pkt for pkt,score in Slist_contents if score<=5.00]
+    newlist=[pkt for pkt,score in Slist_contents(ScoreList) if score<=5.00]
     return newlist
  
             
@@ -250,19 +252,30 @@ def sortPackets(scoreList,stack,queue):
 
 #-------------------------Part 8------------------------------------------------------------------
 def analysePackets(packet_List):
+    
         pQueue = makePacketQueue()
         pStack = makePacketStack()
 
+        # Convert raw packets into packet objects
+        lst = [makePacket(*pkts) for pkts in packet_List]
+       
+
+        # Create a Score ADT using the formatted packet objects
         scoreList = makeScore(lst)
-        print("Score List (scoreList):", scoreList)  
+       
 
         # Sort packets into queue and stack
         sortPackets(scoreList, pStack, pQueue)
+        print("queue",pQueue)
+        print("stack:",pStack)
+        print("ScoreList:",scoreList)
 
         # Sort the queue by sequence number in descending order
-        pQueue[1].sort(key=lambda pkt: getSqn(pkt), reverse=False)
+        contentsQ(pQueue).sort(key=lambda pkt: getSqn(pkt), reverse=False)
 
         return pQueue
+
+   
 
 
 
@@ -282,14 +295,14 @@ if __name__ == '__main__':
     pld = int(first_multiple_input[7])
     
     ProtocolList = ["HTTPS","SMTP","UDP","TCP","DHCP","IRC"]
-    IpBlackList = ["213.217.236.184","444.221.232.94","149.88.83.47","223.70.250.146","169.51.6.136","229.223.169.245"]
+    IpBlackList = ["213.217.236.184","149.88.83.47","223.70.250.146","169.51.6.136","229.223.169.245"]
     
     packet_List = [(srcIP, dstIP, length, prt, sp, dp, sqn, pld),\
-              ("111.202.230.44","62.82.29.190",31,"HTTP",80,20,1562436,38),\
-              ("222.57.155.164","50.168.160.19",22,"UDP",90,5431,1662435,82),\
-              ("333.230.18.207","213.217.236.184",56,"IRC",501,5643,1762434,318),\
+              ("111.202.230.44","62.82.29.190",31,"HTTP",80,20,1562436,338),\
+              ("222.57.155.164","50.168.160.19",22,"UDP",790,5431,1662435,812),\
+              ("333.230.18.207","213.217.236.184",56,"IMCP",501,5643,1762434,3138),\
               ("444.221.232.94","50.168.160.19",1003,"TCP",4657,4875,1962433,428),\
-              ("555.221.232.94","50.168.160.19",236,"TCP",7753,5724,2062432,48)]
+              ("555.221.232.94","50.168.160.19",236,"HTTP",7753,5724,2062432,48)]
     
     lst = [makePacket(*pkts) for pkts in packet_List]
     
@@ -297,8 +310,5 @@ if __name__ == '__main__':
     
     
     fptr.write('Forward Packets => ' + str(analysePackets(packet_List)) + '\n')
-    
-    fptr.close()
-    fptr.write('Queue Contens => ' + str(contentsQ(q)) + '\n')
     
     fptr.close()
